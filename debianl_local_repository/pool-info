@@ -1,0 +1,38 @@
+#!/bin/bash
+
+CURPATH=$(dirname $0)
+DIST=xenial
+SECTION=main
+PATH_LOCAL_REP=$CURPATH
+
+# FLOG=/dev/null
+FLOG=$PATH_LOCAL_REP/log/$(date +%Y-%m-%d-%H-%M-%S).log
+# FLOGE=/dev/null
+FLOGE=$PATH_LOCAL_REP/log/$(date +%Y-%m-%d-%H-%M-%S).err.log
+# cd $PATH_LOCAL_REP
+
+# echo $PATH_LOCAL_REP
+# exit 0
+
+function lspkg(){
+  lspkg=$(ls $1 2>> $FLOGE )
+  
+  for i in $lspkg
+  do
+    if [ -d "$1/$i" ] ; then
+      lspkg $1/$i
+    else
+      if [ -f "$1/$i" ] ; then
+	if [[ $i == *.deb ]]; then
+	  echo "$1/$i"
+	  fname="$( basename $i .deb)"
+	  apt-ftparchive packages $1/$i > $1/$fname.info 2>> $FLOGE
+	fi
+      fi
+    fi
+  done
+}
+
+lspkg "pool/$DIST/$SECTION"
+
+exit 0

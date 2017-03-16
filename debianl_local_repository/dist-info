@@ -1,0 +1,97 @@
+#!/bin/bash
+
+DIST=xenial
+SECTION=main
+CURPATH=$(dirname $0)
+PATH_LOCAL_REP=$CURPATH
+
+# FLOG=/dev/null
+FLOG=$PATH_LOCAL_REP/log/$(date +%Y-%m-%d-%H-%M-%S).log
+# FLOGE=/dev/null
+FLOGE=$PATH_LOCAL_REP/log/$(date +%Y-%m-%d-%H-%M-%S).err.log
+# cd $PATH_LOCAL_REP
+
+pkgsdir="dists/$DIST/$SECTION/binary-"
+
+if [ ! -e $pkgsdir"amd64" ];
+then
+  mkdir -p $pkgsdir"amd64"
+fi
+if [ ! -e $pkgsdir"i386" ];
+then
+  mkdir -p $pkgsdir"i386"
+fi
+
+function lspkg(){
+  lspkg=$( ls $1 2>> $FLOGE )
+  for i in $lspkg
+  do
+    if [ -d "$1/$i" ] ; then
+      lspkg $1/$i
+    else
+      if [ -f "$1/$i" ] ; then
+	if [[ $i == *.info ]]; then
+	  echo "$1/$i"
+	  if [[ $i == *_amd64* || $i == *_all* ]]; then
+	    cat "$1/$i" >> $pkgsdir"amd64/Packages"
+	  fi
+	  if [[ $i == *_i386* || $i == *_all* ]]; then
+	    cat "$1/$i" >> $pkgsdir"i386/Packages"
+	  fi
+	fi
+      fi
+    fi
+  done
+}
+
+if [ -f $pkgsdir"amd64/Packages" ] ; then
+  unlink $pkgsdir"amd64/Packages" 2>> $FLOGE
+fi
+if [ -f $pkgsdir"i386/Packages" ] ; then
+  unlink $pkgsdir"i386/Packages" 2>> $FLOGE
+fi
+  
+lspkg "pool/$DIST/$SECTION"
+
+gzip -9c <$pkgsdir"amd64/Packages" >$pkgsdir"amd64/Packages.gz"
+bzip2 -9c <$pkgsdir"amd64/Packages" >$pkgsdir"amd64/Packages.bz2"
+cat > $pkgsdir"amd64/Release" << EOF
+Archive: $DIST
+Suite: $DIST
+Component: $SECTION
+Origin: local-reposit
+Label: local-reposit
+Architecture: amd64
+EOF
+apt-ftparchive release $pkgsdir"amd64" >> $pkgsdir"amd64/Release"
+
+gzip -9c <$pkgsdir"i386/Packages" >$pkgsdir"i386/Packages.gz"
+bzip2 -9c <$pkgsdir"i386/Packages" >$pkgsdir"i386/Packages.bz2"
+cat > $pkgsdir"i386/Release" << EOF
+Archive: $DIST
+Suite: $DIST
+Component: $SECTION
+Origin: local-reposit
+Label: local-reposit
+Architecture: i386
+EOF
+apt-ftparchive release $pkgsdir"i386" >> $pkgsdir"i386/Release"
+
+dir=$PATH_LOCAL_REP/dists/$DIST/
+cat > $dir/Release << EOF
+Origin: local-reposit
+Label: local-reposit
+Suite: $DIST
+Codename: $DIST
+EOF
+
+echo Date: `date -u +"%a, %d %b %Y %T UTC"` >> $dir/Release
+cat >> $dir/Release << EOF
+Architectures: amd64 i386
+Components: $SECTION
+Description: local repositary
+EOF
+  
+apt-ftparchive release $dir >> $dir/Release
+
+exit 0

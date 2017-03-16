@@ -1,0 +1,89 @@
+#!/bin/bash
+# sudo apt-move get
+# sudo apt-move move
+
+CURPATH=$(dirname $0)
+DIST=xenial
+SECTION=main
+PATH_LOCAL_REP=$CURPATH
+# PATH_NEW_DEB=/var/cache/apt/archives
+PATH_NEW_DEB=$PATH_LOCAL_REP/new
+OLDC=True
+PATH_OLD_DEB=$PATH_LOCAL_REP/old
+FLOG=$PATH_LOCAL_REP/log/$(date +%Y-%m-%d-%H-%M-%S).oldc.log
+cd $PATH_LOCAL_REP
+
+IFS="
+"
+
+list_old_deb=$(ls -1 $PATH_OLD_DEB | grep .deb)
+
+echo ""
+echo "Источник - "$PATH_OLD_DEB
+echo ""
+
+if [[ $list_old_deb ]]
+  then
+  for ndeb in $list_old_deb
+  do
+
+    debpkgname=$( dpkg --info $PATH_OLD_DEB/$ndeb | grep Package: )
+    debpkgname=${debpkgname:10}
+    debpkgversion=$( dpkg --info $PATH_OLD_DEB/$ndeb | grep Version: )
+    debpkgversion=${debpkgversion:10}
+
+    debpkgsection=$( dpkg --info $PATH_OLD_DEB/$ndeb | grep Section: )
+    debpkgsection=${debpkgsection:9}
+    
+    if [[ $ndeb == lib* ]]
+    then
+      name_dir_alf=$PATH_LOCAL_REP/pool/$DIST/$SECTION/${ndeb:0:4}
+    elif [[ $ndeb == linux* ]]
+    then
+      name_dir_alf=$PATH_LOCAL_REP/pool/$DIST/$SECTION/linux
+    else
+      name_dir_alf=$PATH_LOCAL_REP/pool/$DIST/$SECTION/${ndeb:0:1}
+    fi
+
+    list_exists_deb=$(ls -1 $name_dir_alf | grep $debpkgname'_')
+    
+    if [[ $list_exists_deb ]]
+      then
+      for existsdeb in $list_exists_deb
+      do
+	edebpkgname=$( dpkg --info $name_dir_alf/$existsdeb | grep Package: )
+	edebpkgname=${edebpkgname:10}
+	edebpkgversion=$( dpkg --info $name_dir_alf/$existsdeb | grep Version: )
+	edebpkgversion=${edebpkgversion:10}
+	
+	if [[ $debpkgversion = $edebpkgversion ]]
+	then
+	  echo $debpkgname"			"$debpkgversion
+	  if [[ $OLDC ]]
+	  then
+	    echo $ndeb" удаление!!"
+	    unlink $PATH_OLD_DEB/$ndeb 2>> $FLOG
+	  fi
+	elif [[ $debpkgversion > $edebpkgversion ]]
+	then
+	  echo $debpkgname"			"$debpkgversion" > "$edebpkgversion
+	else
+	  echo $edebpkgname"			"$debpkgversion" < "$edebpkgversion
+	  if [[ $OLDC ]]
+	  then
+	    echo $ndeb" удаление!!"
+	    unlink $PATH_OLD_DEB/$ndeb 2>> $FLOG
+	  fi
+	fi
+      done
+      else
+	echo $ndeb"			!"$name_dir_alf
+      fi
+  done
+  else
+    echo "Стрых пакетов не обнаружено!!!"
+fi
+
+echo ""
+
+exit 0
