@@ -1,17 +1,40 @@
 #!/bin/bash
 
-DIST=xenial
-SECTION=main
+if [[ $1 ]]
+  then
+  DIST=$1
+else
+  DIST=local
+fi
+if [[ $2 ]]
+  then
+  SECTION=$2
+else
+  SECTION=main
+fi
+COMPONENTS=''
 CURPATH=$(dirname $0)
 PATH_LOCAL_REP=$CURPATH
 
 # FLOG=/dev/null
-FLOG=$PATH_LOCAL_REP/log/$(date +%Y-%m-%d-%H-%M-%S).log
+FLOG=$PATH_LOCAL_REP/log/$(date +%Y-%m-%d-%H-%M-%S).dist.log
 # FLOGE=/dev/null
 FLOGE=$PATH_LOCAL_REP/log/$(date +%Y-%m-%d-%H-%M-%S).err.log
 # cd $PATH_LOCAL_REP
 
-pkgsdir="dists/$DIST/$SECTION/binary-"
+ddir="$PATH_LOCAL_REP/dists/$DIST"
+pdir="$PATH_LOCAL_REP/pool/$DIST"
+
+sections=$( ls -C $pdir 2>> $FLOGE )
+
+for sec in $sections
+do
+  if [ -d $pdir/$sec ]; then
+    COMPONENTS="$COMPONENTS $sec"
+  fi
+done
+
+pkgsdir="$ddir/$SECTION/binary-"
 
 if [ ! -e $pkgsdir"amd64" ];
 then
@@ -33,9 +56,11 @@ function lspkg(){
 	if [[ $i == *.info ]]; then
 	  echo "$1/$i"
 	  if [[ $i == *_amd64* || $i == *_all* ]]; then
+      echo "amd64 $1/$i" >> $FLOG
 	    cat "$1/$i" >> $pkgsdir"amd64/Packages"
 	  fi
 	  if [[ $i == *_i386* || $i == *_all* ]]; then
+      echo "i386 $1/$i" >> $FLOG
 	    cat "$1/$i" >> $pkgsdir"i386/Packages"
 	  fi
 	fi
@@ -50,8 +75,8 @@ fi
 if [ -f $pkgsdir"i386/Packages" ] ; then
   unlink $pkgsdir"i386/Packages" 2>> $FLOGE
 fi
-  
-lspkg "pool/$DIST/$SECTION"
+
+lspkg "$PATH_LOCAL_REP/pool/$DIST/$SECTION"
 
 gzip -9c <$pkgsdir"amd64/Packages" >$pkgsdir"amd64/Packages.gz"
 bzip2 -9c <$pkgsdir"amd64/Packages" >$pkgsdir"amd64/Packages.bz2"
@@ -88,7 +113,7 @@ EOF
 echo Date: `date -u +"%a, %d %b %Y %T UTC"` >> $dir/Release
 cat >> $dir/Release << EOF
 Architectures: amd64 i386
-Components: $SECTION
+Components: $COMPONENTS
 Description: local repositary
 EOF
   

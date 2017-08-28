@@ -1,0 +1,16 @@
+#!/bin/bash
+
+CURPATH=$(dirname $0)
+if [[ $1 ]]
+  then
+  DIST=$1
+else
+  DIST=local
+fi
+
+dir=$CURPATH/dists/$DIST
+
+gpg --armor -o $dir/Release.gpg -sb $dir/Release
+gpg --clearsign --output $dir/InRelease $dir/Release
+
+exit 0

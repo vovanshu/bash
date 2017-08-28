@@ -1,11 +1,27 @@
 #!/bin/bash
 
 CURPATH=$(dirname $0)
-DIST=xenial
-SECTION=main
+if [[ $1 ]]
+  then
+  DIST=$1
+else
+  DIST=local
+fi
+if [[ $2 ]]
+  then
+  SECTION=$2
+else
+  SECTION=main
+fi
 PATH_LOCAL_REP=$CURPATH
 # PATH_NEW_DEB=/var/cache/apt/archives
-PATH_NEW_DEB=$PATH_LOCAL_REP/new # path for new packages
+if [[ $3 ]]
+  then
+  PATH_NEW_DEB=$PATH_LOCAL_REP/$3 # path for new packages
+else
+  PATH_NEW_DEB=$PATH_LOCAL_REP/new # path for new packages
+fi
+
 MOVE_NEW=True # if PATH_NEW_DEB writeable!
 MOVE_NEW_IFOLDER=True # if PATH_NEW_DEB writeable!
 PATH_OLD_DEB=$PATH_LOCAL_REP/old # if need old packages
@@ -20,12 +36,51 @@ FLOGE=$PRELOG.err.log
 
 cd $PATH_LOCAL_REP/
 
-function strvar(){
-  local str
-  str="$( echo "$1" | sed -n "/$2/p" )"
-  leng=${#2}
-  echo ${str:$leng}
+# function strvar(){
+#   local str
+#   str="$( echo "$1" | sed -n "/$2/p" )"
+#   leng=${#2}
+#   echo ${str:$leng}
+# }
+
+function npkgvars(){
+  local result
+  result=$( echo $1 | sed 's/%3a/:/g' | sed 's/_/ /g' )
+  i=0
+  for v in $result
+  do  
+    if [[ $i == 1 ]]
+      then
+        pkgver=$v
+    elif [[ $i == 2 ]]
+      then
+        pkgarch=$v
+    else
+      pkgname=$v
+    fi
+    i=$(( $i + 1 ))
+  done
 }
+
+function epkgvars(){
+  local result
+  result=$( echo $1 | sed 's/%3a/:/g' | sed 's/_/ /g' )
+  i=0
+  for v in $result
+  do  
+    if [[ $i == 1 ]]
+      then
+        epkgver=$v
+    elif [[ $i == 2 ]]
+      then
+        epkgarch=$v
+    else
+      epkgname=$v
+    fi
+    i=$(( $i + 1 ))
+  done
+}
+
 
 list_new_deb=$(ls $PATH_NEW_DEB | grep .deb 2>> $FLOGE )
 
@@ -39,10 +94,7 @@ if [[ $list_new_deb ]]
   do
     ndeb=$PATH_NEW_DEB/$npkg
     fname="$( basename $npkg .deb)"
-    pkgi=$( dpkg --info "$ndeb" )
-    pkgname="$( strvar "$pkgi" "Package: ")"
-    pkgver="$( strvar "$pkgi" "Version: ")"
-    pkgarch="$( strvar "$pkgi" "Architecture: ")"
+    npkgvars $fname
 
     dirdest="pool/$DIST/$SECTION"
     
@@ -68,9 +120,8 @@ if [[ $list_new_deb ]]
       then
       for existsdeb in $list_exists_deb
       do
-        epkgi=$( dpkg --info "$name_dir_alf/$existsdeb" )
-        epkgver="$( strvar "$epkgi" "Version: ")"
         efname="$( basename $existsdeb .deb)"
+        epkgvars $efname
 
         if dpkg --compare-versions $pkgver eq $epkgver
         then
@@ -78,13 +129,13 @@ if [[ $list_new_deb ]]
           then
             if [[ $PATH_OLD_DEB ]]
             then
-              echo $ndeb" перемещение в "$PATH_OLD_DEB
+              echo $fname" перемещение в "$PATH_OLD_DEB
               mv -v $ndeb $PATH_OLD_DEB >> $FLOG 2>> $FLOGE
-              echo $ndeb >> $FLOGO
+              echo $fname >> $FLOGO
             else
-              echo $ndeb" удаление!!"
+              echo $fname" удаление!!"
               unlink $ndeb 2>> $FLOGE
-              echo $ndeb >> $FLOGR
+              echo $fname >> $FLOGR
             fi
           fi
           echo $pkgname" - актуальный ($pkgver)"
@@ -131,10 +182,10 @@ if [[ $list_new_deb ]]
       else
       if [[ $MOVE_NEW ]]
         then
-          echo $pkgname" новый (перемещение)"
+          echo $fname" новый (перемещение)"
           mv -v $ndeb $name_dir_alf >> $FLOG 2>> $FLOGE
         else
-          echo $ndeb" новый (копирование)"
+          echo $fname" новый (копирование)"
           cp -v $ndeb $name_dir_alf >> $FLOG 2>> $FLOGE
       fi
       echo $fname >> $FLOGA
@@ -143,7 +194,7 @@ if [[ $list_new_deb ]]
   
   done
 
-  $PATH_LOCAL_REP"/dist-info"
+  $PATH_LOCAL_REP/dist-info $DIST $SECTION
   
   else
     echo "Новых пакетов не обнаружено!!!"

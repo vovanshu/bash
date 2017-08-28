@@ -1,0 +1,20 @@
+#!/bin/bash
+
+CURPATH=$(dirname $0)
+PATH_LOCAL_REP=$CURPATH
+
+FLOG=$PATH_LOCAL_REP/log/$(date +%Y-%m-%d-%H-%M-%S).dist.log
+FLOGE=$PATH_LOCAL_REP/log/$(date +%Y-%m-%d-%H-%M-%S).err.log
+
+ddir="$PATH_LOCAL_REP/pool/"
+
+dists=$( ls -C $ddir 2>> $FLOGE )
+
+for dist in $dists
+do
+  if [ -d $ddir/$dist ]; then
+    $CURPATH/dist-info $dist
+  fi
+done
+
+exit 0

@@ -1,15 +1,25 @@
 #!/bin/bash
 
 CURPATH=$(dirname $0)
-DIST=xenial
-SECTION=main
+if [[ $1 ]]
+  then
+  DIST=$1
+else
+  DIST=local
+fi
+if [[ $2 ]]
+  then
+  SECTION=$2
+else
+  SECTION=main
+fi
 PATH_LOCAL_REP=$CURPATH
 
 # FLOG=/dev/null
 FLOG=$PATH_LOCAL_REP/log/$(date +%Y-%m-%d-%H-%M-%S).log
 # FLOGE=/dev/null
 FLOGE=$PATH_LOCAL_REP/log/$(date +%Y-%m-%d-%H-%M-%S).err.log
-# cd $PATH_LOCAL_REP
+cd $PATH_LOCAL_REP
 
 # echo $PATH_LOCAL_REP
 # exit 0
