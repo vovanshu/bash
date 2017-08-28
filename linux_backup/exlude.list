@@ -1,7 +1,0 @@
-archives/*.deb
-partial/*.deb
-.Trash*
-.thumbnails/*
-.cache*
-chromium/Default/File System/*
-boot/mbp/casper
