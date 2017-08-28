@@ -1,0 +1,10 @@
+boot/*
+etc/*
+home/*
+usr/*
+var/*
+opt/*
+android/*
+chroot/*
+project/*
+www/*

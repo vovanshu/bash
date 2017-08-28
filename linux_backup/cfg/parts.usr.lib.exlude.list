@@ -1,0 +1,14 @@
+usr/lib/x86_64-linux-gnu/*
+usr/lib/libreoffice/*
+usr/lib/chromium-browser/*
+usr/lib/gcc/*
+usr/lib/arm-none-eabi/*
+usr/lib/python2.7/*
+usr/lib/llvm-3.8/*
+usr/lib/i386-linux-gnu/*
+usr/lib/paraview/*
+usr/lib/jvm/*
+usr/lib/virtualbox/*
+usr/lib/firefox/*
+usr/lib/thunderbird/*
+usr/lib/eclipse/*

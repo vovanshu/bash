@@ -1,0 +1,4 @@
+.cache/*
+.config/chromium/Default/File System/*
+kdenlive/thumbs/*
+.thumbnails/*

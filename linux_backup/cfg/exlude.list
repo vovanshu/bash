@@ -1,0 +1,30 @@
+lost+found
+System Volume Information
+.Trash*
+[Tt]rash
+dev/*
+proc/*
+sys/*
+tmp/*
+run/*
+mnt/*
+media/*
+var/cache/apt/archives/*.deb
+var/cache/apt/archives/partial/*.deb
+var/crash/*.crash
+var/backups/*.gz
+var/cache/oracle-*-installer/jdk-*.tar.gz
+.gvfs
+.backup*
+*~
+.dropbox*
+work/*
+usrs/*
+win/*
+chromium/Default/File System/*
+boot/mbp/casper
+boot/efi/ATI2016
+boot/efi/AUR2016
+boot/efi/live
+boot/efi/wifislax
+kdenlive/thumbs/*

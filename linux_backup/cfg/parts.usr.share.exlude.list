@@ -1,0 +1,9 @@
+usr/share/locale/*
+usr/share/fonts/*
+usr/share/doc/*
+usr/share/icons/*
+usr/share/eclipse/*
+usr/share/skypeforlinux/*
+usr/share/java/*
+usr/share/qt4/*
+usr/share/qt5/*

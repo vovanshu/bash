@@ -1,0 +1,19 @@
+lost+found
+System Volume Information
+.Trash*
+[Tt]rash
+dev/*
+proc/*
+sys/*
+tmp/*
+run/*
+mnt/*
+media/*
+var/cache/apt/archives/*.deb
+var/cache/apt/archives/partial/*.deb
+var/crash/*.crash
+var/backups/*.gz
+android/*
+chroot/*
+project/*
+www/*
