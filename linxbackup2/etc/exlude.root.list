@@ -1,0 +1,21 @@
+./boot/*
+./etc/*
+./home/*
+./usr/*
+./var/*
+./dev/*
+./proc/*
+./sys/*
+./tmp/*
+./run/*
+./mnt/*
+./media/*
+lost+found
+System Volume Information
+./android/*
+./chroot/*
+./project/*
+./www/*
+./work/*
+./usrs/*
+./win/*
