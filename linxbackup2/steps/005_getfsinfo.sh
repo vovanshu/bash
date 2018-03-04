@@ -1,11 +1,11 @@
 
 echo $sizefs > $LSPATH/size.fs
 
-logtt getinfo fdisk
+logtt getinfo $n fdisk
 fdisk -l > $LSPATH/fdisk.list
 
-logtt getinfo blkid
+logtt getinfo $n blkid
 blkid > $LSPATH/blkid.list
 
-logtt getinfo "cp fstab"
+logtt getinfo $n "cp fstab"
 cp $SRC/etc/fstab $LSPATH/fstab.list
