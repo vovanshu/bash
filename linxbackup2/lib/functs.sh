@@ -23,8 +23,8 @@ function randnum(){
 
 function logtt(){
 	local ctime=$(date +%Y-%m-%d-%H-%M-%S)
-	wmsg $1 $ctime $2 $3 $4 $5 >> $FLOGT
-	wmsg $1 $ctime $2 $3 $4 $5
+	wmsg $1 $ctime "$2" "$3" "$4" "$5" >> $FLOGT
+	wmsg $1 $ctime "$2" "$3" "$4" "$5"
 }
 
 function wmsg(){
