@@ -1,3 +1,0 @@
-*/var/cache/apt/archives/*.deb
-*/var/cache/apt/archives/partial/*.deb
-*/var/cache/pacman/pkg/*.pkg.tar.xz
